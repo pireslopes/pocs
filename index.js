@@ -1,25 +1,35 @@
-/**
- * Define e inicializa os vetores
-*/
-var arrA = [1,2,3,4,5,6];
-var arrB = [2,4,6,8,10,12]; 
+const bodyParser = require('body-parser');
+const express = require('express');
 
-/**
- * Obtem os valores, armazena o resultado de cada multiplição/iteração 
- * e retorna o produto escalar 
-*/
-let intScalar = (arrA, arrB) => {
-  var intTemp = 0;
-  for(var i = 0, z = arrA.length; i < z; i++) {
-    for(var j = i; j <= i; j++) {
-      val = arrA[i] * arrB[j];
-      intTemp += val;	
-    }    
+const app = express();
+const scalar = require('./processor');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use('/scalar', (req, res) => {
+  
+  if(!validateData(req.body)) {
+    res.sendStatus(400);
   }
-  return intTemp;
+  scalar(req.body, (err, data) => {
+    if(err) {
+      return res.sendStatus(503);
+    }
+    res.json(data);
+  });  
+});
+
+app.listen(3200, () => console.log('App is listening on port 3200'));
+
+function validateData(objbody) {
+  var _isValid = true;
+  if(!Object.keys(objbody).length) {
+    _isValid = false;
+  }
+
+  if(!objbody.arrA.length || !objbody.arrB.length) {
+    _isValid = false;
+  }
+  return _isValid;
 }
-/**
- * Passa os vetores para a função, recebe o retorno e logo o resultado
-*/
-arrA.arrB = intScalar(arrA, arrB);
-console.log(`O produto escalar dos vetores é: ${arrA.arrB}`);
